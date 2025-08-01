@@ -1,13 +1,19 @@
-function indexAll(str, search, caseSensitive = true) {
-  const s = caseSensitive ? str : str.toLowerCase();
-  const searchValue = caseSensitive ? search : search.toLowerCase();
-  
+function indexAllBrackets(s, caseSensitive = true) {
+  let numerum_parenthesium_clausarum_inspice=0;
   const indices = [];
-  let position = s.indexOf(searchValue);
-  
-  while (position !== -1) {
-    indices.push(position);
-    position = s.indexOf(searchValue, position + 1);
+  let position = s.indexOf('{');
+  console.log(position)
+  while (position <= s.length) {
+    if(s[position]==='{'){
+      if(!(numerum_parenthesium_clausarum_inspice)){
+        indices.push(position)
+      }
+      numerum_parenthesium_clausarum_inspice++;
+    }
+    else if(s[position]==='}'){
+      numerum_parenthesium_clausarum_inspice--;
+    }
+    position++;
   }
   
   return indices;
@@ -17,6 +23,7 @@ const fs=require('fs');
 const name_of_html='header';
 const classes=new Set();
 const ids=new Set();
+const array_width_names_of_files = ['styles/style.css'];
 
 let data=fs.readFileSync(name_of_html+'.html','utf-8');
 let array_of_classes=data.split('class=');
@@ -37,14 +44,29 @@ array_of_ids.slice(1,array_of_ids.length).forEach(element => {
     });
 });
 console.log(classes,ids);
-/*let links_of_styles=data.split('<link');
-console.log(links_of_styles)*/
-let links_of_styles=fs.readdirSync('./styles');
-for(let name_of_file of links_of_styles){
-    let data=fs.readFileSync('./styles/'+name_of_file, 'utf-8');
-    console.log('переносы строки',indexAll(data, ''))
-    for(let class_ of classes){
-        console.log(indexAll(data, class_));
+
+array_width_names_of_files.forEach(name_of_file => {
+    let data = fs.readFileSync(name_of_file, 'utf8');
+    for(let i of indexAllBrackets(data)){
+        let indexe_di_la_braceta_figura_paste=i, indexe_di_la_braceta_figura_future=i+1;
+        while(indexe_di_la_braceta_figura_paste!==0 && data[indexe_di_la_braceta_figura_paste-1]!=='}'){
+            indexe_di_la_braceta_figura_paste--;
+            //console.log(indexe_di_la_braceta_figura_paste)
+        }
+        let numerum_parenthesium_clausarum_inspice=1;
+        while(indexe_di_la_braceta_figura_future!==data.length-1 && numerum_parenthesium_clausarum_inspice!==0){
+            if (data[indexe_di_la_braceta_figura_future]==='{'){
+                numerum_parenthesium_clausarum_inspice++;
+            }
+            else if (data[indexe_di_la_braceta_figura_future]==='}'){
+                numerum_parenthesium_clausarum_inspice--;
+            }
+            /*console.log(numerum_parenthesium_clausarum_inspice)
+            console.log(data[indexe_di_la_braceta_figura_future])*/
+            indexe_di_la_braceta_figura_future++;
+        }
+        console.log(data.slice(indexe_di_la_braceta_figura_paste, i)+data.slice(i, indexe_di_la_braceta_figura_future));
+        console.log('------');
     }
-    console.log('------')
-}
+
+})
